@@ -1,0 +1,36 @@
+trigger:
+  branches:
+    include:
+      - "main"
+
+variables:
+  BUILD_VERSION: "$(Build.BuildId)"
+  SERVICE_CONNECTION_NAME: "SP-CTAC-C365-DEPLOYAGENT-SBX"
+
+jobs:
+  - job: devopsselfhostedToADO
+    displayName: Update ADO repo from Ctac GitHub fork
+    pool:
+      vmImage: ubuntu-latest
+      #name: ctacstepsbx
+    steps:
+      - checkout: git://AzureRM/azurerm-selfhostedagent
+        persistCredentials: true
+      - task: AzureCLI@2
+        displayName: "Import module for image building"
+        inputs:
+          azureSubscription: ${{ variables.SERVICE_CONNECTION_NAME }}
+          scriptType: "pscore"
+          scriptLocation: "inlineScript"
+          addSpnToEnvironment: "true"
+          InlineScript: |
+            git config --global user.email "azuredevops@ctac.nl"
+            git config --global user.name "AzureDevOps Pipeline"
+            git -c http.extraheader="AUTHORIZATION: bearer $(System.AccessToken)" remote add downstream https://dev.azure.com/ctac-org/AzureRM/_git/azurerm-selfhostedagent
+            git -c http.extraheader="AUTHORIZATION: bearer $(System.AccessToken)" fetch downstream
+            git -c http.extraheader="AUTHORIZATION: bearer $(System.AccessToken)" checkout -b downstream/features/updatedevopsselfhosted/${{ variables.BUILD_VERSION }} origin/main
+            git -c http.extraheader="AUTHORIZATION: bearer $(System.AccessToken)" push downstream
+            echo "Git done, ADO create PR"
+            echo $(System.AccessToken) | az devops login
+            az repos pr create --auto-complete true --delete-source-branch true --target-branch main --source-branch downstream/features/updatedevopsselfhosted/${{ variables.BUILD_VERSION }} --organization 'https://dev.azure.com/ctac-org/' --project AzureRM --repository azurerm-selfhostedagent
+            az devops logout
