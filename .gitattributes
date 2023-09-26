@@ -1,7 +1,0 @@
-.gitattributes merge=ours
-.gitignore merge=ours
-CODE_OF_CONDUCT.md merge=ours
-CONTRIBUTING.md merge=ours
-LICENSE merge=ours
-README.md merge=ours
-SECURITY.md merge=ours
