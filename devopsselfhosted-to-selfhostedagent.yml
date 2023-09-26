@@ -29,7 +29,7 @@ jobs:
             git -c http.extraheader="AUTHORIZATION: bearer $(System.AccessToken)" remote add downstream https://dev.azure.com/ctac-org/AzureRM/_git/azurerm-selfhostedagent
             git -c http.extraheader="AUTHORIZATION: bearer $(System.AccessToken)" fetch downstream
             git -c http.extraheader="AUTHORIZATION: bearer $(System.AccessToken)" checkout -b downstream/features/updatedevopsselfhosted/${{ variables.BUILD_VERSION }} origin/main
-            git -c http.extraheader="AUTHORIZATION: bearer $(System.AccessToken)" rm --cached .vscode/
+            git -c http.extraheader="AUTHORIZATION: bearer $(System.AccessToken)" rm -r --cached .vscode/
             git -c http.extraheader="AUTHORIZATION: bearer $(System.AccessToken)" add .
             git -c http.extraheader="AUTHORIZATION: bearer $(System.AccessToken)" commit -m 'Removed VsCode'
             git -c http.extraheader="AUTHORIZATION: bearer $(System.AccessToken)" push downstream
